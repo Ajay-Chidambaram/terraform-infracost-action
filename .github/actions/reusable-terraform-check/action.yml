@@ -12,8 +12,8 @@ inputs:
 
 runs:
   using: "composite"
-  env:
-    INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+  # env:
+  #   INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   steps:
   - name: Checkout repository
