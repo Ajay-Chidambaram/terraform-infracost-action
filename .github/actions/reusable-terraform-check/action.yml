@@ -23,10 +23,13 @@ runs:
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Download tfplan
-    uses: actions/download-artifact@v4
-    with:
-      name: tfplan-json
+  - name: list
+    run: ls -al && echo ${GITHUB_ACTION_PATH}
+
+  # - name: Download tfplan
+  #   uses: actions/download-artifact@v4
+  #   with:
+  #     name: tfplan-json
 
   - name: Install Infracost
     run: |
