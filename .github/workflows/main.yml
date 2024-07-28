@@ -1,9 +1,9 @@
 name: Terraform Check
 
 on:
-    push:
-        branches:
-            - main
+    # push:
+    #     branches:
+    #         - main
     pull_request:
         branches:
             - main
@@ -32,18 +32,6 @@ jobs:
 
           - name: Convert Terraform plan to JSON
             run: terraform show -json tfplan.binary > tfplan.json
-
-          - name: list
-            run: ls -al 
-                
-          - name: echo
-            run: echo ${GITHUB_ACTION_PATH}
-
-          - name: Upload plan JSON
-            uses: actions/upload-artifact@v3
-            with:
-                name: tfplan-json
-                path: tfplan.json
 
           - name: Call reusable workflow for cost and tag check
             uses: ./.github/actions/reusable-terraform-check

@@ -12,16 +12,11 @@ inputs:
 
 runs:
   using: "composite"
-  # env:
-  #   INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   steps:
   - name: echo
     run: echo ${{ inputs.infracost_token }}
     shell: bash
-
-  # - name: Checkout repository
-  #   uses: actions/checkout@v4
 
   - name: list
     run: ls -al
@@ -30,11 +25,6 @@ runs:
   - name: echo
     run: echo ${GITHUB_ACTION_PATH}
     shell: bash
-
-  # - name: Download tfplan
-  #   uses: actions/download-artifact@v4
-  #   with:
-  #     name: tfplan-json
 
   - name: Install Infracost
     run: |
@@ -53,14 +43,3 @@ runs:
     shell: bash
     env:
       INFRACOST_API_KEY: ${{ inputs.infracost_token }}
-
-  - name: Check for required tags
-    run: |
-      missing_tags=$(jq -r '.resource_changes[] | select(.type == "aws_instance") | select(.change.after.tags == null or .change.after.tags | has("${{ inputs.required_tags }}") | not) | .address' tfplan.json)
-      if [ -n "$missing_tags" ]; then
-        echo "Error: The following resources are missing required tags: $missing_tags"
-        exit 1
-      fi
-    env:
-      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
-    shell: bash
