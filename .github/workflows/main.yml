@@ -102,7 +102,7 @@ jobs:
           - name: Checkout tools repo
             uses: actions/checkout@v4
             with:
-                repository: Ajay-Chidambaram/terraform-infracost-check
+                repository: Ajay-Chidambaram/terraform-infracost-action
 
           - name: Post Infracost comment
             shell: bash
