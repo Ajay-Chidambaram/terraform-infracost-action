@@ -7,7 +7,7 @@ on:
         type: string
     outputs:
       output1:
-        type: string
+        value: something
 jobs:
   build:
     runs-on: ubuntu-latest
