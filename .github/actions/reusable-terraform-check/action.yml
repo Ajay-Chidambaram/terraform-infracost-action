@@ -23,6 +23,11 @@ runs:
   - name: Checkout repository
     uses: actions/checkout@v4
 
+  - name: Download tfplan
+    uses: actions/download-artifact@v4
+    with:
+      name: tfplan-json
+
   - name: Install Infracost
     run: |
       curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
