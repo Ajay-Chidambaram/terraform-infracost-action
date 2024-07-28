@@ -1,9 +1,6 @@
 name: Terraform Check
 
 on:
-    push:
-        branches:
-            - main
     pull_request:
         branches:
             - main
@@ -11,6 +8,18 @@ on:
 jobs:
     terraform:
         runs-on: ubuntu-latest
+        
+        env:
+            TF_ROOT: .
+            REGO_POLICY_DIR: ./policy
+            TF_VERSION: 1.7.4
+            CONFTEST_VERSION: 0.49.1
+            WORKING_DIR: ./
+        
+        permissions:
+            contents: read
+            # Required to post comments
+            pull-requests: write
 
         steps: 
           - name: Checkout repository
@@ -20,6 +29,11 @@ jobs:
             uses: hashicorp/setup-terraform@v2
             with:
                 terraform_version: '1.0.0'
+        
+          - name: Install Conftest
+            run: |
+                wget -O - 'https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz' | tar zxvf -
+                ./conftest --version
 
           - name: Initialize Terraform
             run: terraform init
@@ -38,5 +52,7 @@ jobs:
             with:
                 infracost_token: ${{ secrets.INFRACOST_API_KEY }}
                 required_tags: 'Owner,Environment'
-            
 
+          - name: Run Conftest Test
+            id: conftest
+            run: ./conftest test ${{ env.WORKING_DIR }}tfplan.json -o github

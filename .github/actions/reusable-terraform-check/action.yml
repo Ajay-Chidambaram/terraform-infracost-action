@@ -18,7 +18,7 @@ runs:
     run: echo ${{ inputs.infracost_token }}
     shell: bash
 
-  - name: list
+  - name: list Old
     run: ls -al
     shell: bash
 
@@ -26,20 +26,78 @@ runs:
     run: echo ${GITHUB_ACTION_PATH}
     shell: bash
 
-  - name: Install Infracost
+  # - name: Install Infracost
+  #   run: |
+  #     curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+  #     infracost --version
+  #   shell: bash
+
+  # - name: Generate Infracost breakdown
+  #   run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
+  #   shell: bash
+  #   env:
+  #     INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+
+  # - name: Output Infracost breakdown
+  #   run: infracost output --path=infracost-report.json --format=table
+  #   shell: bash
+
+
+  - name: Setup Infracost
+    uses: infracost/actions/setup@v2
+    shell: bash
+    env:
+      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+
+  # Checkout the base branch of the pull request (e.g. main/master).
+  - name: Checkout base branch
+    uses: actions/checkout@v3
+    shell: bash
+    with:
+      ref: '${{ github.event.pull_request.base.ref }}'
+
+  - name: list Main
+    run: ls -al
+    shell: bash
+
+  # Generate Infracost JSON file as the baseline.
+  - name: Generate Infracost cost estimate baseline
+    shell: bash
     run: |
-      curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
-      infracost --version
+      infracost breakdown --path=${TF_ROOT} \
+                          --format=json \
+                          --out-file=/tmp/infracost-base.json
+
+  # Checkout the current PR branch so we can create a diff.
+  - name: Checkout PR branch
+    uses: actions/checkout@v3
+
+  - name: list PR
+    run: ls -al
     shell: bash
 
-  - name: Generate Infracost breakdown
-    run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
+  # Generate an Infracost diff and save it to a JSON file.
+  - name: Generate Infracost diff
     shell: bash
-    env:
-      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+    run: |
+      infracost diff --path=${TF_ROOT} \
+                      --format=json \
+                      --compare-to=/tmp/infracost-base.json \
+                      --out-file=/tmp/infracost.json
 
-  - name: Output Infracost breakdown
-    run: infracost output --path=infracost-report.json --format=table
+  # Posts a comment to the PR using the 'update' behavior.
+  # This creates a single comment and updates it. The "quietest" option.
+  # The other valid behaviors are:
+  #   delete-and-new - Delete previous comments and create a new one.
+  #   hide-and-new - Minimize previous comments and create a new one.
+  #   new - Create a new cost estimate comment on every push.
+  # See https://www.infracost.io/docs/features/cli_commands/#comment-on-pull-requests for other options.
+  - name: Post Infracost comment
     shell: bash
-    env:
-      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+    run: |
+      infracost comment github --path=/tmp/infracost.json \
+                                --repo=$GITHUB_REPOSITORY \
+                                --github-token=${{github.token}} \
+                                --pull-request=${{github.event.pull_request.number}} \
+                                --behavior=update \
+                                --policy-path ${REGO_POLICY_DIR}/infracost.rego
