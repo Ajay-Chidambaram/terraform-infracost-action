@@ -1,7 +1,0 @@
-name: Caller Workflow
-on: [push, pull_request]
-jobs:
-    build:
-        uses: ./.github/workflows/debug2.yml
-        with:
-            input1: value1
