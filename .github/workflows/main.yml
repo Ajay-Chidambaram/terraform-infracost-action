@@ -34,7 +34,7 @@ jobs:
       run: terraform show -json tfplan.binary > tfplan.json
 
     - name: Call reusable workflow for cost and tag check
-      uses: ./.github/actions/reusable-terraform-check.yml
+      uses: ./.github/actions/reusable-terraform-check
       with:
         infracost_token: ${{ secrets.INFRACOST_API_KEY }}
         required_tags: 'Owner,Environment'
