@@ -33,6 +33,9 @@ jobs:
           - name: Convert Terraform plan to JSON
             run: terraform show -json tfplan.binary > tfplan.json
 
+          - name: list
+            run: ls -al && echo $GITHUB_ACTION_PATH
+
           - name: Upload plan JSON
             uses: actions/upload-artifact@v3
             with:
