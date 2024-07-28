@@ -45,14 +45,12 @@ runs:
 
   - name: Setup Infracost
     uses: infracost/actions/setup@v2
-    shell: bash
     env:
       INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   # Checkout the base branch of the pull request (e.g. main/master).
   - name: Checkout base branch
     uses: actions/checkout@v3
-    shell: bash
     with:
       ref: '${{ github.event.pull_request.base.ref }}'
 
