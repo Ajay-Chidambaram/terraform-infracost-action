@@ -24,7 +24,12 @@ runs:
     uses: actions/checkout@v4
 
   - name: list
-    run: ls -al && echo ${GITHUB_ACTION_PATH}
+    run: ls -al
+    shell: bash
+
+  - name: echo
+    run: echo ${GITHUB_ACTION_PATH}
+    shell: bash
 
   # - name: Download tfplan
   #   uses: actions/download-artifact@v4
