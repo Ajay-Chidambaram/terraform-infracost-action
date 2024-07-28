@@ -104,6 +104,13 @@ jobs:
             with:
                 repository: Ajay-Chidambaram/terraform-infracost-action
 
+          - name: echo
+            shell: bash
+            run: |
+                ls -al
+                echo "${{ env.WORKING_DIR }}"
+                echo ${GITHUB_ACTION_PATH}
+
           - name: Post Infracost comment
             shell: bash
             run: |
