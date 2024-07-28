@@ -30,7 +30,7 @@ runs:
     shell: bash
 
   - name: Generate Infracost breakdown
-    run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
+    run: infracost breakdown --path=${GITHUB_ACTION_PATH}/tfplan.json --format=json --out-file=infracost-report.json
     shell: bash
     env:
       INFRACOST_API_KEY: ${{ inputs.infracost_token }}
@@ -43,7 +43,7 @@ runs:
 
   - name: Check for required tags
     run: |
-      missing_tags=$(jq -r '.resource_changes[] | select(.type == "aws_instance") | select(.change.after.tags == null or .change.after.tags | has("${{ inputs.required_tags }}") | not) | .address' tfplan.json)
+      missing_tags=$(jq -r '.resource_changes[] | select(.type == "aws_instance") | select(.change.after.tags == null or .change.after.tags | has("${{ inputs.required_tags }}") | not) | .address' ${GITHUB_ACTION_PATH}/tfplan.json)
       if [ -n "$missing_tags" ]; then
         echo "Error: The following resources are missing required tags: $missing_tags"
         exit 1
