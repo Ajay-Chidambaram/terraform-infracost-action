@@ -41,20 +41,21 @@ jobs:
           - name: Validate Terraform
             run: terraform validate
 
-          - name: Plan Terraform
-            run: terraform plan -out=tfplan.binary
-
-          - name: Convert Terraform plan to JSON
-            run: terraform show -json tfplan.binary > tfplan.json
+          # Generates an execution plan for Terraform & Saves as json output for conftest validation
+          - name: Terraform Plan & Save JSON plan output
+            working-directory: ${{ env.WORKING_DIR }}
+            run: |
+                terraform plan -out=tfplan && \
+                terraform show -json tfplan > tfplan.json
 
           - name: echo 
             run : | 
                 ls -al
                 echo  ${{ env.WORKING_DIR }}
-                
+
           - name: Run Conftest Test
             id: conftest
-            run: ./conftest test tfplan.json -o github
+            run: ./conftest test ${{ env.WORKING_DIR }}tfplan.json -o github
         
           - name: Call reusable workflow for cost and tag check
             uses: ./.github/actions/reusable-terraform-check
