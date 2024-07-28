@@ -34,11 +34,11 @@ jobs:
       run: terraform show -json tfplan.binary > tfplan.json
 
     - name: Call reusable workflow for cost and tag check
-      uses: ./.github/workflows/reusable-terraform-check.yml
+      uses: ./.github/workflows/reusable-workflow.yml
       with:
         infracost_token: ${{ secrets.INFRACOST_API_KEY }}
         required_tags: 'Owner,Environment'
 
-    - name: Apply Terraform (optional)
-      if: success() && github.event_name == 'push'
-      run: terraform apply -auto-approve tfplan.binary
+    # - name: Apply Terraform (optional)
+    #   if: success() && github.event_name == 'push'
+    #   run: terraform apply -auto-approve tfplan.binary
