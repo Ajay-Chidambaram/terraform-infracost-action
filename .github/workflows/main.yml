@@ -99,6 +99,11 @@ jobs:
         #   hide-and-new - Minimize previous comments and create a new one.
         #   new - Create a new cost estimate comment on every push.
         # See https://www.infracost.io/docs/features/cli_commands/#comment-on-pull-requests for other options.
+          - name: Checkout tools repo
+            uses: actions/checkout@v4
+            with:
+                repository: Ajay-Chidambaram/terraform-infracost-check
+
           - name: Post Infracost comment
             shell: bash
             run: |
