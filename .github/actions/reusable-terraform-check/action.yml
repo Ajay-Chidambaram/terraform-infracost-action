@@ -1,6 +1,16 @@
 name: Terraform Cost and Tag Check
 
 on:
+  workflow_dispatch:
+    inputs:
+      infracost_token:
+        description: 'Infracost API Token'
+        required: true
+        type: string
+      required_tags:
+        description: 'Comma-separated list of required tags'
+        required: true
+        type: string
   workflow_call:
     inputs:
       infracost_token:
