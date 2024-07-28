@@ -45,8 +45,8 @@ runs:
 
   - name: Setup Infracost
     uses: infracost/actions/setup@v2
-    env:
-      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
+    with:
+      api-key: ${{ inputs.infracost_token }}
 
   # Checkout the base branch of the pull request (e.g. main/master).
   - name: Checkout base branch
