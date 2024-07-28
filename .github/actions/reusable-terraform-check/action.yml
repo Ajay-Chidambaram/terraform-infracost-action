@@ -16,6 +16,10 @@ runs:
   #   INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   steps:
+  - name: echo
+    run: echo ${{ inputs.infracost_token }}
+    shell: bash
+
   - name: Checkout repository
     uses: actions/checkout@v4
 
