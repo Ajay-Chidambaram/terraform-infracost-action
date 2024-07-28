@@ -103,7 +103,7 @@ jobs:
             uses: actions/checkout@v4
             with:
                 repository: Ajay-Chidambaram/terraform-infracost-action
-                path: policy
+                path: checks
 
           - name: echo
             shell: bash
@@ -121,4 +121,4 @@ jobs:
                                             --github-token=${{github.token}} \
                                             --pull-request=${{github.event.pull_request.number}} \
                                             --behavior=update \
-                                            --policy-path ${REGO_POLICY_DIR}/infracost.rego
+                                            --policy-path ./checks/${REGO_POLICY_DIR}/infracost.rego
