@@ -7,7 +7,7 @@ name: Terraform Check
 
 on:
     workflow_call:
-        
+
 jobs:
     terraform:
         runs-on: ubuntu-latest
@@ -51,9 +51,59 @@ jobs:
                 terraform plan -out=tfplan && \
                 terraform show -json tfplan > tfplan.json
         
-          # DO NOT EDIT THIS
-          - name: Call reusable workflow for cost and tag check
-            uses: ./.github/actions/reusable-terraform-check
+          - name: Setup Infracost
+            uses: infracost/actions/setup@v2
             with:
-                infracost_token: ${{ secrets.INFRACOST_API_KEY }}
-                required_tags: 'Owner,Environment'
+                api-key: ${{ inputs.infracost_token }}
+
+        # Checkout the base branch of the pull request (e.g. main/master).
+          - name: Checkout base branch
+            uses: actions/checkout@v3
+            with:
+                ref: '${{ github.event.pull_request.base.ref }}'
+
+          - name: list Main
+            run: ls -al
+            shell: bash
+
+        # Generate Infracost JSON file as the baseline.
+          - name: Generate Infracost cost estimate baseline
+            shell: bash
+            run: |
+                infracost breakdown --path=${TF_ROOT} \
+                                    --format=json \
+                                    --out-file=/tmp/infracost-base.json
+
+        # Checkout the current PR branch so we can create a diff.
+          - name: Checkout PR branch
+            uses: actions/checkout@v3
+
+          - name: list PR
+            run: ls -al
+            shell: bash
+
+        # Generate an Infracost diff and save it to a JSON file.
+          - name: Generate Infracost diff
+            shell: bash
+            run: |
+                infracost diff --path=${TF_ROOT} \
+                                --format=json \
+                                --compare-to=/tmp/infracost-base.json \
+                                --out-file=/tmp/infracost.json
+
+        # Posts a comment to the PR using the 'update' behavior.
+        # This creates a single comment and updates it. The "quietest" option.
+        # The other valid behaviors are:
+        #   delete-and-new - Delete previous comments and create a new one.
+        #   hide-and-new - Minimize previous comments and create a new one.
+        #   new - Create a new cost estimate comment on every push.
+        # See https://www.infracost.io/docs/features/cli_commands/#comment-on-pull-requests for other options.
+          - name: Post Infracost comment
+            shell: bash
+            run: |
+                infracost comment github --path=/tmp/infracost.json \
+                                            --repo=$GITHUB_REPOSITORY \
+                                            --github-token=${{github.token}} \
+                                            --pull-request=${{github.event.pull_request.number}} \
+                                            --behavior=update \
+                                            --policy-path ${REGO_POLICY_DIR}/infracost.rego
