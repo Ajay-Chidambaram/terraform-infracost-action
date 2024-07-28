@@ -27,12 +27,15 @@ runs:
     run: |
       curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
       infracost --version
+    shell: bash
 
   - name: Generate Infracost breakdown
     run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
+    shell: bash
 
   - name: Output Infracost breakdown
     run: infracost output --path=infracost-report.json --format=table
+    shell: bash
 
   - name: Check for required tags
     run: |
@@ -41,3 +44,4 @@ runs:
         echo "Error: The following resources are missing required tags: $missing_tags"
         exit 1
       fi
+    shell: bash
