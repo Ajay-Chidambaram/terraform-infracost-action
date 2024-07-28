@@ -104,6 +104,7 @@ jobs:
             with:
                 repository: Ajay-Chidambaram/terraform-infracost-action
                 path: checks
+                ref: feature/testing
 
           - name: echo
             shell: bash
