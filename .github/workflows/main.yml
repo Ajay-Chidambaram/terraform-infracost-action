@@ -110,6 +110,8 @@ jobs:
             run: |
                 ls -al ../
                 ls -al
+                ls ${{ env.WORKING_DIR }}/checks 
+                ls checks/policy/
                 echo "${{ env.WORKING_DIR }}"
                 echo ${GITHUB_ACTION_PATH}
 
@@ -121,4 +123,4 @@ jobs:
                                             --github-token=${{github.token}} \
                                             --pull-request=${{github.event.pull_request.number}} \
                                             --behavior=update \
-                                            --policy-path ./checks/${REGO_POLICY_DIR}/infracost.rego
+                                            --policy-path ${{ env.WORKING_DIR }}checks/${REGO_POLICY_DIR}/infracost.rego
