@@ -33,11 +33,6 @@ jobs:
             uses: hashicorp/setup-terraform@v2
             with:
                 terraform_version: '1.7.4'
-        
-          - name: Install Conftest
-            run: |
-                wget -O - 'https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz' | tar zxvf -
-                ./conftest --version
 
           - name: Initialize Terraform
             run: terraform init
@@ -63,34 +58,26 @@ jobs:
             with:
                 ref: '${{ github.event.pull_request.base.ref }}'
 
-          - name: list Main
-            run: ls -al
-            shell: bash
-
         # Generate Infracost JSON file as the baseline.
           - name: Generate Infracost cost estimate baseline
             shell: bash
             run: |
-                infracost breakdown --path=${TF_ROOT} \
-                                    --format=json \
-                                    --out-file=/tmp/infracost-base.json
+              infracost breakdown --path=${TF_ROOT} \
+                                --format=json \
+                                --out-file=/tmp/infracost-base.json
 
         # Checkout the current PR branch so we can create a diff.
           - name: Checkout PR branch
             uses: actions/checkout@v3
 
-          - name: list PR
-            run: ls -al
-            shell: bash
-
         # Generate an Infracost diff and save it to a JSON file.
           - name: Generate Infracost diff
             shell: bash
             run: |
-                infracost diff --path=${TF_ROOT} \
-                                --format=json \
-                                --compare-to=/tmp/infracost-base.json \
-                                --out-file=/tmp/infracost.json
+              infracost diff --path=${TF_ROOT} \
+                            --format=json \
+                            --compare-to=/tmp/infracost-base.json \
+                            --out-file=/tmp/infracost.json
 
         # Posts a comment to the PR using the 'update' behavior.
         # This creates a single comment and updates it. The "quietest" option.
@@ -104,24 +91,14 @@ jobs:
             with:
                 repository: Ajay-Chidambaram/terraform-infracost-action
                 path: checks
-                ref: feature/testing
-
-          - name: echo
-            shell: bash
-            run: |
-                ls -al ../
-                ls -al
-                ls ${{ env.WORKING_DIR }}/checks 
-                ls checks/policy/
-                echo "${{ env.WORKING_DIR }}"
-                echo ${GITHUB_ACTION_PATH}
+                ref: main
 
           - name: Post Infracost comment
             shell: bash
             run: |
-                infracost comment github --path=/tmp/infracost.json \
-                                            --repo=$GITHUB_REPOSITORY \
-                                            --github-token=${{github.token}} \
-                                            --pull-request=${{github.event.pull_request.number}} \
-                                            --behavior=update \
-                                            --policy-path ${{ env.WORKING_DIR }}checks/${REGO_POLICY_DIR}/infracost.rego
+              infracost comment github --path=/tmp/infracost.json \
+                                      --repo=$GITHUB_REPOSITORY \
+                                      --github-token=${{github.token}} \
+                                      --pull-request=${{github.event.pull_request.number}} \
+                                      --behavior=update \
+                                      --policy-path ${{ env.WORKING_DIR }}checks/${REGO_POLICY_DIR}/infracost.rego
