@@ -32,10 +32,14 @@ runs:
   - name: Generate Infracost breakdown
     run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
     shell: bash
+    env:
+      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   - name: Output Infracost breakdown
     run: infracost output --path=infracost-report.json --format=table
     shell: bash
+    env:
+      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
   - name: Check for required tags
     run: |
@@ -44,4 +48,6 @@ runs:
         echo "Error: The following resources are missing required tags: $missing_tags"
         exit 1
       fi
+    env:
+      INFRACOST_API_KEY: ${{ inputs.infracost_token }}
     shell: bash
