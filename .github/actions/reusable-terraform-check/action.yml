@@ -1,53 +1,53 @@
-name: Terraform Cost and Tag Check
+# name: Terraform Cost and Tag Check
 
-on:
-  workflow_dispatch:
-    inputs:
-      infracost_token:
-        description: 'Infracost API Token'
-        required: true
-        type: string
-      required_tags:
-        description: 'Comma-separated list of required tags'
-        required: true
-        type: string
-  workflow_call:
-    inputs:
-      infracost_token:
-        description: 'Infracost API Token'
-        required: true
-        type: string
-      required_tags:
-        description: 'Comma-separated list of required tags'
-        required: true
-        type: string
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       infracost_token:
+#         description: 'Infracost API Token'
+#         required: true
+#         type: string
+#       required_tags:
+#         description: 'Comma-separated list of required tags'
+#         required: true
+#         type: string
+#   workflow_call:
+#     inputs:
+#       infracost_token:
+#         description: 'Infracost API Token'
+#         required: true
+#         type: string
+#       required_tags:
+#         description: 'Comma-separated list of required tags'
+#         required: true
+#         type: string
 
-jobs:
-  cost-and-tag-check:
-    runs-on: ubuntu-latest
+# jobs:
+#   cost-and-tag-check:
+#     runs-on: ubuntu-latest
 
-    env:
-      INFRACOST_API_KEY: ${{ github.event.inputs.infracost_token }}
+#     env:
+#       INFRACOST_API_KEY: ${{ inputs.infracost_token }}
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v4
 
-    - name: Install Infracost
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
-        infracost --version
+#     - name: Install Infracost
+#       run: |
+#         curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+#         infracost --version
 
-    - name: Generate Infracost breakdown
-      run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
+#     - name: Generate Infracost breakdown
+#       run: infracost breakdown --path=tfplan.json --format=json --out-file=infracost-report.json
 
-    - name: Output Infracost breakdown
-      run: infracost output --path=infracost-report.json --format=table
+#     - name: Output Infracost breakdown
+#       run: infracost output --path=infracost-report.json --format=table
 
-    - name: Check for required tags
-      run: |
-        missing_tags=$(jq -r '.resource_changes[] | select(.type == "aws_instance") | select(.change.after.tags == null or .change.after.tags | has("${{ github.event.inputs.required_tags }}") | not) | .address' tfplan.json)
-        if [ -n "$missing_tags" ]; then
-          echo "Error: The following resources are missing required tags: $missing_tags"
-          exit 1
-        fi
+#     - name: Check for required tags
+#       run: |
+#         missing_tags=$(jq -r '.resource_changes[] | select(.type == "aws_instance") | select(.change.after.tags == null or .change.after.tags | has("${{ inputs.required_tags }}") | not) | .address' tfplan.json)
+#         if [ -n "$missing_tags" ]; then
+#           echo "Error: The following resources are missing required tags: $missing_tags"
+#           exit 1
+#         fi
