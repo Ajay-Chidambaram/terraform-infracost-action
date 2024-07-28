@@ -33,8 +33,13 @@ jobs:
     - name: Convert Terraform plan to JSON
       run: terraform show -json tfplan.binary > tfplan.json
 
+    - name: Checkout repository again (to ensure the reusable workflow is available)
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
     - name: Call reusable workflow for cost and tag check
-      uses: ./.github/workflows/reusable_workflow.yml
+      uses: ./.github/workflows/reusable-terraform-check.yml
       with:
         infracost_token: ${{ secrets.INFRACOST_API_KEY }}
         required_tags: 'Owner,Environment'
