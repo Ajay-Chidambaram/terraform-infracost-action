@@ -32,8 +32,7 @@ jobs:
         
           - name: Install Conftest
             run: |
-                wget -O - 'https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz' | tar zxvf -
-                ./conftest --version
+                wget -O - 'https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz' | tar zxvf - ./conftest --version
 
           - name: Initialize Terraform
             run: terraform init
@@ -47,12 +46,12 @@ jobs:
           - name: Convert Terraform plan to JSON
             run: terraform show -json tfplan.binary > tfplan.json
 
+          - name: Run Conftest Test
+            id: conftest
+            run: ./conftest test ${{ env.WORKING_DIR }}tfplan.json -o github
+        
           - name: Call reusable workflow for cost and tag check
             uses: ./.github/actions/reusable-terraform-check
             with:
                 infracost_token: ${{ secrets.INFRACOST_API_KEY }}
                 required_tags: 'Owner,Environment'
-
-          - name: Run Conftest Test
-            id: conftest
-            run: ./conftest test ${{ env.WORKING_DIR }}tfplan.json -o github
