@@ -20,8 +20,8 @@ runs:
     run: echo ${{ inputs.infracost_token }}
     shell: bash
 
-  - name: Checkout repository
-    uses: actions/checkout@v4
+  # - name: Checkout repository
+  #   uses: actions/checkout@v4
 
   - name: list
     run: ls -al
