@@ -54,7 +54,7 @@ jobs:
           - name: Setup Infracost
             uses: infracost/actions/setup@v2
             with:
-                api-key: ${{ inputs.infracost_token }}
+                api-key: ${{ secrets.INFRACOST_API_KEY }}
 
         # Checkout the base branch of the pull request (e.g. main/master).
           - name: Checkout base branch
